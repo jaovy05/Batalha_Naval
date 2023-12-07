@@ -11,7 +11,7 @@ entity batalhaNaval is
 end batalhaNaval ; 
 
 architecture batalha of batalhaNaval is
-    type tipo_estado is (setBarco1, setBarco2, posbarco2, disparo, comparar);
+    type tipo_estado is (setBarco1, setBarco2, posbarco2, disparo, comparar, ganhou, perdeu);
     signal y : tipo_estado;
 
     function codificar(codificado : std_logic_vector(3 downto 0)) return std_logic_vector is
@@ -106,11 +106,30 @@ begin
                         ledg6 <= '1';
                         ledg7 <= '1';
                         acertos(2) := '1';
-                    end if;
-                    
+                    end if;    
                     rodadas := somar(rodadas, "1111");
                     y <= disparo;
-                  
+                    if rodadas = "0000" then
+                        if acertos = "111" then
+                            y <= ganhou;
+                        else
+                            y <= perdeu;
+                        end if;
+                    end if; 
+                when ganhou =>
+                    ledg0 <= '1';
+                    ledg1 <= '1';
+                    ledg2 <= '1';
+                    ledg3 <= '1';
+                    ledg4 <= '1';
+                    ledg5 <= '1';
+                    ledg6 <= '1';
+                    ledg7 <= '1';
+                when perdeu =>
+                    ledr9 <= '1';
+                    ledr8 <= '1';
+                    ledr7 <= '1';
+                    ledr6 <= '1';
             end case;
         end if;
     end process;
