@@ -4,7 +4,7 @@ library ieee ;
 
 entity batalhaNaval is
   port (
-    sw0, sw1, sw2, sw3, sw6, sw7, sw8, sw9, key1, key0: in std_logic;
+    sw0, sw1, sw2, sw3, sw4, sw6, sw7, sw8, sw9, key1, key0: in std_logic;
     hex0, hex1, hex2, hex3: out std_logic_vector(6 downto 0);
     ledr9, ledr8, ledr7, ledr6, ledg0, ledg1, ledg2, ledg3, ledg4, ledg5, ledg6, ledg7, disparar: out std_logic
   ) ;
@@ -30,10 +30,23 @@ architecture batalha of batalhaNaval is
         return resultado;
     end codificar;
 
+    function somar(x : std_logic_vector(3 downto 0); y_dasoma: std_logic_vector(3 downto 0)) return std_logic_vector is
+        variable carry: std_logic := '0';
+        variable resultado : std_logic_vector(3 downto 0);
+    begin
+        for i in x'range loop
+            resultado(i) := (x(i) xor y_dasoma(i)) xor carry;
+            carry := (x(i) and y_dasoma(i)) or ((x(i) or y_dasoma(i)) and carry);
+        end loop;
+
+        return resultado;
+    end somar;
+
 begin
     process(key1, key0)
         variable barco1, barco2_casa1, barco2_casa2, disp: std_logic_vector(3 downto 0);
-        variable rodadas: std_logic_vector(3 downto 0) := "0000";
+        variable rodadas: std_logic_vector(3 downto 0) := "0110";
+        variable acertos: std_logic_vector(2 downto 0);
     begin
         if key1 = '1' then
             y <= setBarco1;
@@ -56,14 +69,13 @@ begin
                     barco2_casa1(2) := sw2;
                     barco2_casa1(3) := sw3;
                     y <= posbarco2;
-                    ledr8 <= '0';
-                    
+                    ledr8 <= '0';     
                 when posbarco2 => 
-                   -- if sw(4) = '1' then
-                    --    barco2_casa2 := barco2_casa1 + '1';
-                   -- else 
-                    --    barco2_casa2 := barco2_casa1 + "100";
-                   -- end if;
+                    if sw4 = '1' then
+                        barco2_casa2 := somar(barco2_casa1, "0001");
+                    else 
+                        barco2_casa2 := somar(barco2_casa1, "0100");
+                    end if;
                     y <= disparo;
                     ledr7 <= '0';
                     disparar <= '1';
@@ -81,11 +93,22 @@ begin
                         ledg1 <= '1';
                         ledg2 <= '1';
                         ledg3 <= '1';
+                        acertos(0) := '1';
+                    elsif disp = barco2_casa1 then
+                        ledg4 <= '1';
+                        ledg5 <= '1';
+                        ledg6 <= '1';
+                        ledg7 <= '1';
+                        acertos(1) := '1';
+                    elsif disp = barco2_casa2 then
+                        ledg4 <= '1';
+                        ledg5 <= '1';
+                        ledg6 <= '1';
+                        ledg7 <= '1';
+                        acertos(2) := '1';
                     end if;
-                    ledg4 <= disp(0);
-                    ledg5 <= disp(1);
-                    ledg6 <= disp(2);
-                    ledg7 <= disp(3);
+                    
+                    rodadas := somar(rodadas, "1111");
                     y <= disparo;
                   
             end case;
