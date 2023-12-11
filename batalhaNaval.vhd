@@ -101,7 +101,7 @@ begin
                         y <= posbarco2;
                         ledr(8) <= '0'; 
                     end if;
-                    when posbarco2 => 
+                when posbarco2 => 
                     ledr(9) <= '0';
                     if sw(4) = '1' then
                         barco2_casa2 := codificar(somar(decodificar(barco2_casa1), "0001"));
