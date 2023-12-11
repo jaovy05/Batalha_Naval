@@ -15,7 +15,7 @@ end batalhaNaval ;
 architecture batalha of batalhaNaval is
     type tipo_estado is (setBarco1, setBarco2, posbarco2, disparo, ganhou, perdeu);
     signal y : tipo_estado;
-    signal rodadas: std_logic_vector(3 downto 0) := "0110";
+    signal rodadas: std_logic_vector(3 downto 0);
     
     function codificar(codificado : std_logic_vector(3 downto 0)) return std_logic_vector is
         variable a, b, c, d : std_logic;
@@ -67,6 +67,7 @@ begin
         variable acertos: std_logic_vector(2 downto 0) := "000";
     begin
         if key(1) = '0' then
+            rodadas <= "0110";
             y <= setBarco1;
             ledr(9) <= '1';
             ledr(8) <= '1';
@@ -161,7 +162,8 @@ begin
     begin
         case rodadas is
             when "0110" =>
-                hex0 <= "0000010";
+            --           g f e d c b a    
+                hex0 <= "0 0 0 0 0 1 0";
             when "0101" =>
                 hex0 <= "0010010";
             when "0100" =>

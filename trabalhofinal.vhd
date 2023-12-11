@@ -12,9 +12,9 @@ entity batalhaNaval is
 end batalhaNaval ; 
 
 architecture batalha of batalhaNaval is
-    type tipo_estado is (setBarco1, setBarco2, posbarco2, disparo, ganhou, perdeu);
+    type tipo_estado is (setBarco1, setBarco2, disparo, ganhou, perdeu);
     signal y : tipo_estado;
-    signal rodadas: std_logic_vector(3 downto 0) := "0110";
+    signal rodadas: std_logic_vector(3 downto 0);
 
     function codificar(codificado : std_logic_vector(3 downto 0)) return std_logic_vector is
         variable a, b, c, d : std_logic;
@@ -25,10 +25,22 @@ architecture batalha of batalhaNaval is
         c := codificado(1);
         d := codificado(0);
 
-        resultado(3) := ((not a ) and (not b)) or (c and (a xor d)) or (a and b and (not c) and d);
-        resultado(2) := ((c xor d) and (not a)) or ((b xor d) and c) or ((not a) and b and (not c));
-        resultado(1) := ((not b) and c and (not d)) or ((not a) and c) or (a and (not b) and (not c)) or ((not a) and b and d);
-        resultado(0) := (a and (b xor c)) or ((d xor b) and c) or (a and (not b) and d);
+        resultado(3) := ((not a ) and (not b))       or 
+                        (c and (a xor d))            or 
+                        (a and b and (not c) and d);
+
+        resultado(2) := ((c xor d) and (not a))      or 
+                        ((b xor d) and c)            or 
+                        ((not a) and b and (not c));
+
+        resultado(1) := ((not b) and c and (not d))  or
+                        ((not a) and c)              or
+                        (a and (not b) and (not c))  or
+                        ((not a) and b and d);
+
+        resultado(0) := (a and (b xor c))            or 
+                        ((d xor b) and c)            or 
+                        (a and (not b) and d);
         return resultado;
     end codificar;
 
@@ -41,9 +53,17 @@ architecture batalha of batalhaNaval is
         c := decodificado(1);
         d := decodificado(0);
 
-        resultado(3) := ((not b and (not a or d)) or (not c and d));
-        resultado(2) := (((not a) and (not (b xor c))) or ((not c) and (not (a xor d))) or ((a) and (not b) and (c) and (not d)));
-        resultado(1) := ((a and c) or (b and d) or ((not a) and (not b) and (not c) and (not d)));
+        resultado(3) := ((not b and (not a or d))           or 
+                        (not c and d));
+
+        resultado(2) := (((not a) and (not (b xor c)))      or 
+                        ((not c) and (not (a xor d)))       or 
+                        ((a) and (not b) and (c) and (not d)));
+
+        resultado(1) := ((a and c)                          or 
+                        (b and d)                           or 
+                        ((not a) and (not b) and (not c) and (not d)));
+
         resultado(0) := (a xor (not(b xor (c xor d))));
         return resultado;
     end decodificar;
@@ -71,6 +91,7 @@ begin
             ledr8 <= '1';
             ledr7 <= '1';
             ledr6 <= '1';
+            rodadas <= "0110";
         elsif key0'event and key0 = '0' then
             case y is
                 when setBarco1 => 
@@ -129,7 +150,7 @@ begin
                         ledg7 <= '1';
                         acertos(2) := '1';
                     end if;    
-                    rodadas := somar(rodadas, "1111");
+                    rodadas <= somar(rodadas, "1111");
                     y <= disparo;
                 when ganhou =>
                     ledg0 <= '1';
