@@ -5,7 +5,7 @@ library ieee ;
 entity batalhaNaval is
   port (
     sw0, sw1, sw2, sw3, sw4, sw6, sw7, sw8, sw9, key1, key0: in std_logic;
-    hex0, hex1, hex2, hex3: out std_logic_vector(6 downto 0);
+    
     ledr9, ledr8, ledr7, ledr6, ledr5, ledr4, ledr3, ledr2, ledr1, ledr0, ledg0, ledg1, ledg2, ledg3, ledg4, 
         ledg5, ledg6, ledg7, disparar: out std_logic
   ) ;
@@ -15,6 +15,8 @@ architecture batalha of batalhaNaval is
     type tipo_estado is (setBarco1, setBarco2, disparo, ganhou, perdeu);
     signal y : tipo_estado;
     signal rodadas: std_logic_vector(3 downto 0);
+
+    
 
     function codificar(codificado : std_logic_vector(3 downto 0)) return std_logic_vector is
         variable a, b, c, d : std_logic;
@@ -84,8 +86,12 @@ begin
     process(key1, key0)
         variable barco1, barco2_casa1, barco2_casa2, disp: std_logic_vector(3 downto 0);
         variable acertos: std_logic_vector(2 downto 0);
+        variable acerto: std_logic;
+        variable extra: std_logic;
+        
     begin
         if key1 = '1' then
+            
             y <= setBarco1;
             ledr9 <= '1';
             ledr8 <= '1';
@@ -110,10 +116,15 @@ begin
                         y <= disparo;
                         ledr8 <= '0'; 
                     end if;
+                    extra <= decodificar(barco2_casa1);
+                    
                     if sw4 = '1' then
-                        barco2_casa2 := codificar(somar(decodificar(barco2_casa1), "0001"));
-                        if barco2_casa1 /= barco2_casa2 then
-                            barco2_casa2 := codificar(somar(decodificar(barco2_casa1), "0100"));
+                        if(extra(0) nand (extra(1))) then 
+                            barco2_casa2 := codificar(somar(decodificar(barco2_casa1), "0001"));
+                            if barco2_casa2 = barco1 then
+                                barco2_casa2 := codificar(somar(decodificar(barco2_casa1), "0100"));
+                            end if;
+                            y <= disparo;
                         end if;
                     else 
                         barco2_casa2 := codificar(somar(decodificar(barco2_casa1), "0100"));
@@ -121,7 +132,7 @@ begin
                             barco2_casa2 := codificar(somar(decodificar(barco2_casa1), "0001"));
                         end if;
                     end if;
-                    y <= disparo;
+                    
                     ledr7 <= '0';
                     disparar <= '1';
                 when disparo =>
@@ -132,26 +143,41 @@ begin
                     ledr6 <= '0';
                     disp := codificar(disp);
                     if disp = barco1 then
-                        ledg0 <= '1';
-                        ledg1 <= '1';
-                        ledg2 <= '1';
-                        ledg3 <= '1';
-                        acertos(0) := '1';
+                        if(acertos(0) /= '1') then
+                            ledg0 <= '1';
+                            ledg1 <= '1';
+                            ledg2 <= '1';
+                            ledg3 <= '1';
+                            acertos(0) := '1';
+                            acerto := '1';
+                        end if;
                     elsif disp = barco2_casa1 then
-                        ledg4 <= '1';
-                        ledg5 <= '1';
-                        ledg6 <= '1';
-                        ledg7 <= '1';
-                        acertos(1) := '1';
+                        if(acertos(1) /= '1') then
+                            ledg4 <= '1';
+                            ledg5 <= '1';
+                            ledg6 <= '1';
+                            ledg7 <= '1';
+                            acertos(1) := '1';
+                            acerto := '1';
+                        end if;
                     elsif disp = barco2_casa2 then
-                        ledg4 <= '1';
-                        ledg5 <= '1';
-                        ledg6 <= '1';
-                        ledg7 <= '1';
-                        acertos(2) := '1';
+                        if(acertos(2) /= '1') then
+                            ledg4 <= '1';
+                            ledg5 <= '1';
+                            ledg6 <= '1';
+                            ledg7 <= '1';
+                            acertos(2) := '1';
+                            acerto := '1';
+                        end if;
                     end if;    
                     rodadas <= somar(rodadas, "1111");
                     y <= disparo;
+                    if acertos = "111" then
+                        y <= ganhou;
+                    if rodadas = "0001" and acertou = '0' then                       
+                        y <= perdeu;
+                        end if;
+                    end if; 
                 when ganhou =>
                     ledg0 <= '1';
                     ledg1 <= '1';
@@ -196,13 +222,7 @@ begin
             when others =>
 
         end case;
-       -- if rodadas = "0000" then
-            --if acertos = "111" then
-              --  y <= ganhou;
-            --else
-              --  y <= perdeu;
-            --end if;
-       -- end if; 
+       
     end process;
 
 end batalha ;

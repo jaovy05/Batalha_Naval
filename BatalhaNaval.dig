@@ -20,7 +20,7 @@
         </entry>
         <entry>
           <string>externalOutputs</string>
-          <string>hex0:7,hex1:7,hex2:7,hex3:7,ledr9,ledr8,ledr7,ledr6,ledr5,ledr4,ledr3,ledr2,ledr1,ledr0,ledg0,ledg1,ledg2,ledg3,ledg4,ledg5,ledg6,ledg7,disparar</string>
+          <string>ledr9,ledr8,ledr7,ledr6,ledr5,ledr4,ledr3,ledr2,ledr1,ledr0,ledg0,ledg1,ledg2,ledg3,ledg4,ledg5,ledg6,ledg7,disparar</string>
         </entry>
         <entry>
           <string>Width</string>

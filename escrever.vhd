@@ -3,7 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 
-entity ler is
+entity escrever is
     port (
         clock, reset : in std_logic;
         p0, p1, p2, p3, p4, p5, p6, p7, p8, p9: in  std_logic_vector(4 downto 0);
@@ -12,19 +12,73 @@ entity ler is
         hex20, hex21, hex22, hex23, hex24, hex25, hex26,
         hex30, hex31, hex32, hex33, hex34, hex35, hex36: out std_logic
     );
-end ler;
+end escrever;
 
-architecture arch of ler is
+architecture arch of escrever is
     type palavra is array(9 downto 0) of std_logic_vector(4 downto 0);
     type frase is array(5 downto 0) of palavra;
     
     signal frase_ler: frase;
 
+    function codificarAlfa(codificado : std_logic_vector(4 downto 0)) return std_logic_vector is
+        variable a, b, c, d, e: std_logic;
+        variable resultado : std_logic_vector(6 downto 0);
+    begin
+        a := codificado(4);
+        b := codificado(3);
+        c := codificado(2);
+        d := codificado(1);
+        e := codificado(0);
+        
+        
+        
+        resultado(6) := (c and ((d and e) or (b and (not d))))                  or
+                        ((a and c) and (e or d))                                or
+                        (((not a) and e) and (b xor d))                         or
+                        (((not a) and (not c) and (not e)) and (b xnor d));
+
+        resultado(5) := (b and d and (not e))                                   or
+                        ((not a) and (not b) and (not d) and (not e))           or
+                        (a and (not c) and d and (not e))                       or
+                        (a and c and (not d) and e)                             or
+                        ((not a) and b and (not c) and (not d) and e) ;
+
+        resultado(4) := ((a and e) and ((not c) or d))                          or
+                        (a and b and d)                                         or
+                        (b and (not c) and (not d) and e)                       or
+                        ((not a) and (not b) and (not c) and (not d) and (not e));
+
+        resultado(3) := (((not c) and (not d)) and ((not b) or (not e)))        or
+                        ((not a) and c and d and (not e))                       or
+                        ((not a) and b and (not d) and e)                       or
+                        (a and (not b) and (not c) and (not e));
+        
+        resultado(2) := ((a and c) and (d xnor e))                              or
+                        (((not c) and d) and (a xor e))                         or
+                        (((not d) and (not e)) and (b xnor c))                  or
+                        (((not a) and (not b) and c) and (d xor e));
+
+        resultado(1) := (((not b) and d) and ((not a) or (not c)))              or
+                        (b and c and (not e))                                   or
+                        (a and c and (not d))                                   or
+                        ((not a) and (not c) and (not d) and (not e))           or
+                        ((not a) and (not b) and c and e); 
+
+        resultado(0) := (a and c)                                               or
+                        ((not a) and (not d) and (not e))                       or
+                        (b and (not c) and (not d))                             or
+                        (((not a) and b) and ((not c) or (not e)))              or
+                        ((not b) and (not c) and (d) and (not e));
+
+        return resultado;
+    end codificarAlfa;
+
 begin
     process(clock, reset)
         variable a, b, c, d, e,
                 a1, b1, c1, d1, e1: std_logic;
-        variable i : natural := 0;
+        variable i, j : natural := 0;
+        variable temp: std_logic_vector(6 downto 0);
     begin
         if reset = '1' then
             i := 0;
@@ -32,6 +86,7 @@ begin
             hex10 <= '1'; hex11 <= '1'; hex12 <= '1'; hex13 <= '1'; hex14 <= '1'; hex15 <= '1'; hex16 <= '1';
             hex20 <= '1'; hex21 <= '1'; hex22 <= '1'; hex23 <= '1'; hex24 <= '1'; hex25 <= '1'; hex26 <= '1';
             hex30 <= '1'; hex31 <= '1'; hex32 <= '1'; hex33 <= '1'; hex34 <= '1'; hex35 <= '1'; hex36 <= '1';
+            
             frase_ler(0)(0) <= p0;
             frase_ler(0)(1) <= p1; 
             frase_ler(0)(2) <= p2; 
@@ -42,169 +97,99 @@ begin
             frase_ler(0)(7) <= p7; 
             frase_ler(0)(8) <= p8; 
             frase_ler(0)(9) <= p9; 
+            frase_ler(1)(0) <= "11111";
+            frase_ler(1)(1) <= "01100"; 
+            frase_ler(1)(2) <= "01101"; 
+            frase_ler(1)(3) <= "01110"; 
+            frase_ler(1)(4) <= "01111"; 
+            frase_ler(1)(5) <= "10000"; 
+            frase_ler(1)(6) <= "10001"; 
+            frase_ler(1)(7) <= "10010"; 
+            frase_ler(1)(8) <= "10011"; 
+            frase_ler(1)(9) <= "10100";
+            frase_ler(2)(0) <= "10101";
+            frase_ler(2)(1) <= "10110"; 
+            frase_ler(2)(2) <= "10111"; 
+            frase_ler(2)(3) <= "11000"; 
+            frase_ler(2)(4) <= "11001"; 
+            frase_ler(2)(5) <= "11010"; 
+            frase_ler(2)(6) <= "00001"; 
+            frase_ler(2)(7) <= "00010"; 
+            frase_ler(2)(8) <= "00011"; 
+            frase_ler(2)(9) <= "00100";
+
         elsif clock'event and clock = '0' then
-            a := frase_ler(0)(i)(0); b := frase_ler(0)(i)(1); c := frase_ler(0)(i)(2); d := frase_ler(0)(i)(3); e := frase_ler(0)(i)(4);       
+                --a := frase_ler(0)(i)(0); b := frase_ler(0)(i)(1); c := frase_ler(0)(i)(2); d := frase_ler(0)(i)(3); e := frase_ler(0)(i)(4);       
+                frase_ler(0)(0) <= p0;
+            frase_ler(0)(1) <= p1; 
+            frase_ler(0)(2) <= p2; 
+            frase_ler(0)(3) <= p3; 
+            frase_ler(0)(4) <= p4; 
+            frase_ler(0)(5) <= p5; 
+            frase_ler(0)(6) <= p6; 
+            frase_ler(0)(7) <= p7; 
+            frase_ler(0)(8) <= p8; 
+            frase_ler(0)(9) <= p9; 
+            if frase_ler(j)(i) /= "11111" then
+                temp := codificarAlfa(frase_ler(j)(i));
 
-            hex00 <= (a and c)                          or 
-                    ((not a) and (not c) and e)         or
-                    (a and (not b) and e)               or
-                    ((not b) and d and e)               or
-                    ((not a) and b and (not d) and e)   or
-                    (b and (not c) and (not d) and (not e));
+                hex00 <= temp(0);
+                hex01 <= temp(1);                   
+                hex02 <= temp(2);
+                hex03 <= temp(3);
+                hex04 <= temp(4);
+                hex05 <= temp(5);
+                hex06 <= temp(6);  
 
-            hex01 <= (((not c) and d) and ((not e) or b))   or
-                    (a and d and e)                         or
-                    (((not a) and (not d)) and (c xor e))   or
-                    ((not a) and (not b) and d and (not e)) or
-                    ((not a) and c and (not d) and e);
-                    
-            hex02 <= (b and d and e)                        or
-                    (a and (not c) and e)                   or
-                    (a and c and d)                         or
-                    ((not a) and (not b) and c and (not d)) or
-                    ((not a) and (not b) and (not c) and d and (not a));
+                if i > 0 then 
+                        temp := codificarAlfa(frase_ler(j)(i - 1));
 
-            hex03 <= ((c and e) and ((not a) or d))                         or
-                    (b and c and (not d))                                   or
-                    (((not a) and (not c) and (not e)) and ((not d) or b))  or
-                    (a and (not b) and (not c) and (not d));
+                        hex10 <= temp(0);
+                        hex11 <= temp(1);          
+                        hex12 <= temp(2);
+                        hex13 <= temp(3);
+                        hex14 <= temp(4);
+                        hex15 <= temp(5);
+                        hex16 <= temp(6);  
 
-            hex04 <= (a and b)                           or
-                    ((a and (not e)) and (d or (not e))) or
-                    (b and (not c) and (not d) and (not e));
+                end if;
+                if i > 1 then 
+                        --a := frase_ler(0)(i - 2)(0); b := frase_ler(0)(i - 2)(1); c := frase_ler(0)(i - 2)(2); d := frase_ler(0)(i - 2)(3); e := frase_ler(0)(i - 2)(4);
 
-            hex05 <= (a and b)                           or
-                    ((a and (not e)) and (d or (not e))) or
-                    (b and (not c) and (not d) and (not e));
+                        temp := codificarAlfa(frase_ler(j)(i - 2));
 
-            hex06 <= (a and c and (not d))                  or
-                    (c and d and (not e))                   or
-                    (((not a) and (not c)) and (b xor e))   or
-                    ((not a) and b and (not d) and (not e));  
+                        hex20 <= temp(0);
+                        hex21 <= temp(1);          
+                        hex22 <= temp(2);
+                        hex23 <= temp(3);
+                        hex24 <= temp(4);
+                        hex25 <= temp(5);
+                        hex26 <= temp(6);  
 
-            if i > 0 then 
-                a := frase_ler(0)(i - 1)(0); b := frase_ler(0)(i - 1)(1); c := frase_ler(0)(i - 1)(2); d := frase_ler(0)(i - 1)(3); e := frase_ler(0)(i - 1)(4);
+                end if;
+                if i > 2 then 
+                        --a := frase_ler(0)(i - 3)(0); b := frase_ler(0)(i - 3)(1); c := frase_ler(0)(i - 3)(2); d := frase_ler(0)(i - 3)(3); e := frase_ler(0)(i - 3)(4);
 
-                hex10 <= (a and c)                          or 
-                        ((not a) and (not c) and e)         or
-                        (a and (not b) and e)               or
-                        ((not b) and d and e)               or
-                        ((not a) and b and (not d) and e)   or
-                        (b and (not c) and (not d) and (not e));
+                        temp := codificarAlfa(frase_ler(j)(i - 3));
 
-                hex11 <= (((not c) and d) and ((not e) or b))   or
-                        (a and d and e)                         or
-                        (((not a) and (not d)) and (c xor e))   or
-                        ((not a) and (not b) and d and (not e)) or
-                        ((not a) and c and (not d) and e);
-                        
-                hex12 <= (b and d and e)                        or
-                        (a and (not c) and e)                   or
-                        (a and c and d)                         or
-                        ((not a) and (not b) and c and (not d)) or
-                        ((not a) and (not b) and (not c) and d and (not a));
+                        hex30 <= temp(0);
+                        hex31 <= temp(1);          
+                        hex32 <= temp(2);
+                        hex33 <= temp(3);
+                        hex34 <= temp(4);
+                        hex35 <= temp(5);
+                        hex36 <= temp(6);
 
-                hex13 <= ((c and e) and ((not a) or d))                         or
-                        (b and c and (not d))                                   or
-                        (((not a) and (not c) and (not e)) and ((not d) or b))  or
-                        (a and (not b) and (not c) and (not d));
+                end if;
 
-                hex14 <= (a and b)                           or
-                        ((a and (not e)) and (d or (not e))) or
-                        (b and (not c) and (not d) and (not e));
-
-                hex15 <= (a and b)                           or
-                        ((a and (not e)) and (d or (not e))) or
-                        (b and (not c) and (not d) and (not e));
-
-                hex16 <= (a and c and (not d))                  or
-                        (c and d and (not e))                   or
-                        (((not a) and (not c)) and (b xor e))   or
-                        ((not a) and b and (not d) and (not e));
-            end if;
-            if i > 1 then 
-                a := frase_ler(0)(i - 2)(0); b := frase_ler(0)(i - 2)(1); c := frase_ler(0)(i - 2)(2); d := frase_ler(0)(i - 2)(3); e := frase_ler(0)(i - 2)(4);
-
-                hex20 <= (a and c)                          or 
-                        ((not a) and (not c) and e)         or
-                        (a and (not b) and e)               or
-                        ((not b) and d and e)               or
-                        ((not a) and b and (not d) and e)   or
-                        (b and (not c) and (not d) and (not e));
-
-                hex21 <= (((not c) and d) and ((not e) or b))   or
-                        (a and d and e)                         or
-                        (((not a) and (not d)) and (c xor e))   or
-                        ((not a) and (not b) and d and (not e)) or
-                        ((not a) and c and (not d) and e);
-                        
-                hex22 <= (b and d and e)                        or
-                        (a and (not c) and e)                   or
-                        (a and c and d)                         or
-                        ((not a) and (not b) and c and (not d)) or
-                        ((not a) and (not b) and (not c) and d and (not a));
-
-                hex23 <= ((c and e) and ((not a) or d))                         or
-                        (b and c and (not d))                                   or
-                        (((not a) and (not c) and (not e)) and ((not d) or b))  or
-                        (a and (not b) and (not c) and (not d));
-
-                hex24 <= (a and b)                           or
-                        ((a and (not e)) and (d or (not e))) or
-                        (b and (not c) and (not d) and (not e));
-
-                hex25 <= (a and b)                           or
-                        ((a and (not e)) and (d or (not e))) or
-                        (b and (not c) and (not d) and (not e));
-
-                hex26 <= (a and c and (not d))                  or
-                        (c and d and (not e))                   or
-                        (((not a) and (not c)) and (b xor e))   or
-                        ((not a) and b and (not d) and (not e));
-            end if;
-            if i > 2 then 
-                a := frase_ler(0)(i - 3)(0); b := frase_ler(0)(i - 3)(1); c := frase_ler(0)(i - 3)(2); d := frase_ler(0)(i - 3)(3); e := frase_ler(0)(i - 3)(4);
-
-                hex30 <= (a and c)                          or 
-                        ((not a) and (not c) and e)         or
-                        (a and (not b) and e)               or
-                        ((not b) and d and e)               or
-                        ((not a) and b and (not d) and e)   or
-                        (b and (not c) and (not d) and (not e));
-
-                hex31 <= (((not c) and d) and ((not e) or b))   or
-                        (a and d and e)                         or
-                        (((not a) and (not d)) and (c xor e))   or
-                        ((not a) and (not b) and d and (not e)) or
-                        ((not a) and c and (not d) and e);
-                        
-                hex32 <= (b and d and e)                        or
-                        (a and (not c) and e)                   or
-                        (a and c and d)                         or
-                        ((not a) and (not b) and c and (not d)) or
-                        ((not a) and (not b) and (not c) and d and (not a));
-
-                hex33 <= ((c and e) and ((not a) or d))                         or
-                        (b and c and (not d))                                   or
-                        (((not a) and (not c) and (not e)) and ((not d) or b))  or
-                        (a and (not b) and (not c) and (not d));
-
-                hex34 <= (a and b)                           or
-                        ((a and (not e)) and (d or (not e))) or
-                        (b and (not c) and (not d) and (not e));
-
-                hex35 <= (a and b)                           or
-                        ((a and (not e)) and (d or (not e))) or
-                        (b and (not c) and (not d) and (not e));
-
-                hex36 <= (a and c and (not d))                  or
-                        (c and d and (not e))                   or
-                        (((not a) and (not c)) and (b xor e))   or
-                        ((not a) and b and (not d) and (not e));
-            end if;
-            i := i + 1;
-            if(i = 10) then 
-                i := 0;
+                i := i + 1;
+                if(i = 10) then 
+                        i := 0;
+                        j := j + 1;
+                        if j = 3 then
+                                j := 0;
+                        end if;
+                end if;
             end if;
         end if;
     end process;
